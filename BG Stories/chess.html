@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chess – BG Stories</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0e1218;--silver:#b8c4cc;--gold:#c9973a;--parchment:#f5ead6;--board-light:#f0d9b5;--board-dark:#b58863;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--ink);color:var(--parchment);font-family:'Crimson Text',serif;overflow-x:hidden;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1.4rem 3rem;border-bottom:1px solid rgba(184,196,204,0.15);position:sticky;top:0;background:rgba(14,18,24,0.96);backdrop-filter:blur(8px);z-index:100;}
+.nav-logo{font-family:'Cinzel',serif;font-size:0.78rem;letter-spacing:0.35em;color:var(--gold);text-decoration:none;text-transform:uppercase;}
+.nav-back{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.25em;color:var(--silver);text-decoration:none;text-transform:uppercase;transition:color 0.2s;}
+.nav-back:hover{color:var(--parchment);}
+.hero{min-height:55vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:radial-gradient(ellipse at 30% 60%,rgba(184,196,204,0.08) 0%,transparent 60%),var(--ink);position:relative;overflow:hidden;padding:4rem 2rem;text-align:center;}
+.hero::after{content:'♟';position:absolute;font-size:28rem;opacity:0.025;right:-3%;bottom:-12%;pointer-events:none;user-select:none;color:var(--silver);}
+.game-tag{font-family:'Cinzel',serif;font-size:0.63rem;letter-spacing:0.5em;color:var(--silver);text-transform:uppercase;border:1px solid rgba(184,196,204,0.3);padding:0.35em 1.2em;margin-bottom:1.5rem;display:inline-block;}
+.hero-title{font-family:'Cinzel',serif;font-size:clamp(3.5rem,9vw,7rem);font-weight:900;color:var(--parchment);text-shadow:0 0 60px rgba(184,196,204,0.15);}
+.hero-sub{font-style:italic;font-size:1.25rem;color:rgba(245,234,214,0.55);margin-top:0.8rem;}
+.content{max-width:960px;margin:0 auto;padding:0 2rem;}
+.section{padding:4.5rem 0;border-bottom:1px solid rgba(184,196,204,0.1);}
+.sec-label{font-family:'Cinzel',serif;font-size:0.62rem;letter-spacing:0.5em;color:var(--silver);text-transform:uppercase;margin-bottom:0.8rem;display:block;}
+.sec-title{font-family:'Cinzel',serif;font-size:clamp(1.6rem,3vw,2.3rem);color:var(--parchment);margin-bottom:1.8rem;}
+.prose p{font-size:1.15rem;line-height:1.9;color:rgba(245,234,214,0.78);margin-bottom:1.4rem;}
+.prose p:first-child::first-letter{float:left;font-family:'Cinzel',serif;font-size:3.8rem;line-height:0.8;margin-right:0.1em;color:var(--gold);padding-top:0.08em;}
+.how-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;margin-top:1.8rem;}
+.how-card{border:1px solid rgba(184,196,204,0.18);padding:1.6rem;background:rgba(184,196,204,0.04);transition:border-color 0.2s;}
+.how-card:hover{border-color:rgba(184,196,204,0.4);}
+.how-card h3{font-family:'Cinzel',serif;font-size:1rem;color:var(--silver);margin-bottom:0.6rem;}
+.how-card p{font-size:0.98rem;line-height:1.7;color:rgba(245,234,214,0.62);}
+.game-section{padding:4.5rem 0;}
+.game-area{display:flex;flex-direction:column;align-items:center;gap:1.5rem;margin-top:2rem;}
+.game-status{font-family:'Cinzel',serif;font-size:0.88rem;letter-spacing:0.18em;color:var(--silver);text-align:center;min-height:1.4em;padding:0.5rem 1.5rem;border:1px solid rgba(184,196,204,0.2);}
+#chessboard{border:5px solid #6b4226;box-shadow:0 0 50px rgba(0,0,0,0.8),inset 0 0 0 2px rgba(201,151,58,0.25);display:grid;grid-template-columns:repeat(8,1fr);width:min(480px,88vw);height:min(480px,88vw);}
+.sq{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:clamp(1.4rem,5vw,2.1rem);cursor:pointer;transition:filter 0.1s;user-select:none;}
+.sq.light{background:var(--board-light);}
+.sq.dark{background:var(--board-dark);}
+.sq.selected{box-shadow:inset 0 0 0 3px rgba(255,220,0,0.9);}
+.sq.possible{background:rgba(80,200,80,0.42)!important;}
+.sq.in-check{background:rgba(220,50,50,0.55)!important;}
+.sq:hover{filter:brightness(1.1);}
+.captured-row{font-size:1.3rem;letter-spacing:0.08em;min-height:1.8rem;}
+.controls{display:flex;gap:1rem;}
+.btn-ctrl{font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;padding:0.65rem 1.8rem;border:1px solid var(--silver);color:var(--silver);background:transparent;cursor:pointer;transition:all 0.2s;}
+.btn-ctrl:hover{background:var(--silver);color:var(--ink);}
+.movelog-wrap{width:100%;max-width:340px;border:1px solid rgba(184,196,204,0.18);padding:0.8rem;max-height:140px;overflow-y:auto;}
+.movelog-title{font-family:'Cinzel',serif;font-size:0.58rem;letter-spacing:0.4em;color:var(--silver);text-transform:uppercase;margin-bottom:0.4rem;}
+.move-entry{font-size:0.9rem;color:rgba(245,234,214,0.6);padding:0.18rem 0;border-bottom:1px solid rgba(184,196,204,0.07);}
+footer{text-align:center;padding:3rem;border-top:1px solid rgba(184,196,204,0.1);font-family:'Cinzel',serif;font-size:0.64rem;letter-spacing:0.3em;color:rgba(201,151,58,0.3);text-transform:uppercase;}
+@media(max-width:600px){.how-grid{grid-template-columns:1fr;}nav{padding:1rem 1.5rem;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">BG Stories</a>
+  <a href="index.html" class="nav-back">← Home</a>
+</nav>
+<div class="hero">
+  <span class="game-tag">Strategy · War · Intellect</span>
+  <h1 class="hero-title">Chess</h1>
+  <p class="hero-sub">The eternal duel of minds</p>
+</div>
+<div class="content">
+  <section class="section">
+    <span class="sec-label">History</span>
+    <h2 class="sec-title">Born from Ancient Battlefields</h2>
+    <div class="prose">
+      <p>Chess traces its origins to 6th-century India, where it was known as <em>chaturanga</em> — Sanskrit for "four divisions of the military." The game represented infantry, cavalry, elephants, and chariots, each moving differently across the board in a simulation of ancient warfare.</p>
+      <p>By the 9th century, it had spread through Persia as <em>shatranj</em>, transformed the Islamic world's intellectual culture, and eventually reached Europe via the Moorish conquest of Spain. Medieval Europeans adopted and adapted it, introducing the powerful queen and standardizing modern rules by the late 15th century.</p>
+      <p>Chess has since become the most studied game in human history — a symbol of rationality and royal prestige. From Cold War battles between Fischer and Spassky to today's AI engines and online platforms, chess has never stopped captivating humanity.</p>
+    </div>
+  </section>
+  <section class="section">
+    <span class="sec-label">How to Play</span>
+    <h2 class="sec-title">Rules of the Board</h2>
+    <div class="prose"><p>Two players — White and Black — each command 16 pieces on an 8×8 board. The objective is <strong>checkmate</strong>: place the opponent's king in a position where it faces capture with no legal escape.</p></div>
+    <div class="how-grid">
+      <div class="how-card"><h3>♔ King</h3><p>Moves one square in any direction. The most critical piece — losing it means losing the game.</p></div>
+      <div class="how-card"><h3>♕ Queen</h3><p>The most powerful piece: moves any number of squares horizontally, vertically, or diagonally.</p></div>
+      <div class="how-card"><h3>♖ Rook</h3><p>Moves any number of squares horizontally or vertically. Controls open files and ranks.</p></div>
+      <div class="how-card"><h3>♗ Bishop</h3><p>Moves diagonally any number of squares. Stays on its starting color throughout the game.</p></div>
+      <div class="how-card"><h3>♘ Knight</h3><p>Moves in an "L" shape. The only piece that can jump over others — useful in crowded positions.</p></div>
+      <div class="how-card"><h3>♙ Pawn</h3><p>Moves forward, captures diagonally. Reaches the last rank and promotes to any piece — usually a queen.</p></div>
+    </div>
+  </section>
+  <section class="game-section">
+    <span class="sec-label" style="display:block;text-align:center;">Minigame</span>
+    <h2 class="sec-title" style="text-align:center;">Play Chess</h2>
+    <div class="game-area">
+      <div class="game-status" id="status">White's turn to move</div>
+      <div class="captured-row" id="cap-b"></div>
+      <div id="chessboard"></div>
+      <div class="captured-row" id="cap-w"></div>
+      <div class="controls">
+        <button class="btn-ctrl" onclick="resetGame()">New Game</button>
+        <button class="btn-ctrl" onclick="undoMove()">Undo</button>
+      </div>
+      <div class="movelog-wrap">
+        <div class="movelog-title">Move Log</div>
+        <div id="movelog"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<footer>&copy; 2026 BG Stories</footer>
+<script>
+const SYM={wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'};
+const FILES='abcdefgh';
+let board,turn,sel,poss,hist,capW,capB;
+function clr(p){return p?p[0]:null;}
+function opp(t){return t==='w'?'b':'w';}
+function inB(r,c){return r>=0&&r<8&&c>=0&&c<8;}
+function initB(){
+  const ord=['R','N','B','Q','K','B','N','R'];
+  const b=Array.from({length:8},()=>Array(8).fill(null));
+  ord.forEach((p,c)=>{b[0][c]='b'+p;b[7][c]='w'+p;});
+  for(let c=0;c<8;c++){b[1][c]='bP';b[6][c]='wP';}
+  return b;
+}
+function getMoves(b,r,c,noCheck=false){
+  const p=b[r][c];if(!p)return[];
+  const t=clr(p),type=p[1],mvs=[];
+  const add=(nr,nc)=>{if(inB(nr,nc)&&clr(b[nr][nc])!==t)mvs.push([nr,nc]);};
+  const slide=(dr,dc)=>{let nr=r+dr,nc=c+dc;while(inB(nr,nc)){if(b[nr][nc]){if(clr(b[nr][nc])!==t)mvs.push([nr,nc]);break;}mvs.push([nr,nc]);nr+=dr;nc+=dc;}};
+  if(type==='P'){
+    const d=t==='w'?-1:1,sr=t==='w'?6:1;
+    if(inB(r+d,c)&&!b[r+d][c]){mvs.push([r+d,c]);if(r===sr&&!b[r+2*d][c])mvs.push([r+2*d,c]);}
+    [c-1,c+1].forEach(nc=>{if(inB(r+d,nc)&&b[r+d][nc]&&clr(b[r+d][nc])!==t)mvs.push([r+d,nc]);});
+  }else if(type==='N'){[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]].forEach(([dr,dc])=>add(r+dr,c+dc));}
+  else if(type==='B'){[[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc));}
+  else if(type==='R'){[[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc));}
+  else if(type==='Q'){[[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc));}
+  else if(type==='K'){[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(r+dr,c+dc));}
+  if(noCheck)return mvs;
+  return mvs.filter(([tr,tc])=>{
+    const nb=b.map(row=>[...row]);
+    nb[tr][tc]=nb[r][c];nb[r][c]=null;
+    return !inCheck(nb,t);
+  });
+}
+function inCheck(b,t){
+  let kr=-1,kc=-1;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]===t+'K'){kr=r;kc=c;}
+  if(kr<0)return true;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    if(clr(b[r][c])===opp(t)){if(getMoves(b,r,c,true).some(([mr,mc])=>mr===kr&&mc===kc))return true;}
+  }
+  return false;
+}
+function hasMove(t){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(clr(board[r][c])===t&&getMoves(board,r,c).length>0)return true;
+  return false;
+}
+function resetGame(){
+  board=initB();turn='w';sel=null;poss=[];hist=[];capW=[];capB=[];
+  document.getElementById('movelog').innerHTML='';
+  setStatus("White's turn to move");render();
+}
+function setStatus(m){document.getElementById('status').textContent=m;}
+function doMove(fr,fc,tr,tc){
+  const p=board[fr][fc],cap=board[tr][tc];
+  if(cap){(clr(cap)==='w'?capW:capB).push(cap);}
+  hist.push({board:board.map(r=>[...r]),turn,capW:[...capW],capB:[...capB]});
+  board[tr][tc]=p;board[fr][fc]=null;
+  if(p==='wP'&&tr===0)board[tr][tc]='wQ';
+  if(p==='bP'&&tr===7)board[tr][tc]='bQ';
+  const log=document.getElementById('movelog');
+  const e=document.createElement('div');e.className='move-entry';
+  e.textContent=`${turn==='w'?'White':'Black'}: ${SYM[p]} ${FILES[fc]}${8-fr}→${FILES[tc]}${8-tr}${cap?' x'+SYM[cap]:''}`;
+  log.prepend(e);
+  turn=opp(turn);
+}
+function undoMove(){
+  if(!hist.length)return;
+  const s=hist.pop();board=s.board;turn=s.turn;capW=s.capW;capB=s.capB;
+  sel=null;poss=[];
+  document.getElementById('movelog').firstChild?.remove();
+  render();setStatus(`${turn==='w'?'White':'Black'}'s turn`);
+}
+function click(r,c){
+  if(sel){
+    const mv=poss.find(([mr,mc])=>mr===r&&mc===c);
+    if(mv){
+      doMove(sel[0],sel[1],r,c);sel=null;poss=[];render();
+      const o=turn;
+      if(inCheck(board,o)){
+        if(!hasMove(o)){setStatus(`Checkmate! ${o==='w'?'Black':'White'} wins! 🏆`);return;}
+        setStatus(`${o==='w'?'White':'Black'} is in check!`);
+      }else if(!hasMove(o)){setStatus("Stalemate — Draw!");}
+      else{setStatus(`${o==='w'?'White':'Black'}'s turn`);}
+      return;
+    }
+    sel=null;poss=[];
+  }
+  if(board[r][c]&&clr(board[r][c])===turn){sel=[r,c];poss=getMoves(board,r,c);}
+  render();
+}
+function render(){
+  const el=document.getElementById('chessboard');el.innerHTML='';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const sq=document.createElement('div');
+    sq.className='sq '+((r+c)%2===0?'light':'dark');
+    const p=board[r][c];if(p)sq.textContent=SYM[p];
+    if(sel&&sel[0]===r&&sel[1]===c)sq.classList.add('selected');
+    if(poss.some(([mr,mc])=>mr===r&&mc===c))sq.classList.add('possible');
+    if(p&&p[1]==='K'&&inCheck(board,clr(p)))sq.classList.add('in-check');
+    sq.addEventListener('click',()=>click(r,c));
+    el.appendChild(sq);
+  }
+  document.getElementById('cap-b').textContent=capB.map(p=>SYM[p]).join('');
+  document.getElementById('cap-w').textContent=capW.map(p=>SYM[p]).join('');
+}
+resetGame();
+</script>
+</body>
+</html>
