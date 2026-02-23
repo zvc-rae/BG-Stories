@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BG Stories – Board Game Chronicles</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1209;
+    --parchment: #f5ead6;
+    --gold: #c9973a;
+    --deep-red: #7a1e1e;
+    --wood: #6b3a1f;
+    --cream: #fdf6e3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--ink);
+    color: var(--parchment);
+    font-family: 'Crimson Text', serif;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+  header {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(107,58,31,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(122,30,30,0.2) 0%, transparent 50%),
+      var(--ink);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,151,58,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,151,58,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .corner { position: absolute; width: 100px; height: 100px; border: 2px solid rgba(201,151,58,0.35); }
+  .corner.tl { top: 24px; left: 24px; border-right: none; border-bottom: none; }
+  .corner.tr { top: 24px; right: 24px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: 24px; left: 24px; border-right: none; border-top: none; }
+  .corner.br { bottom: 24px; right: 24px; border-left: none; border-top: none; }
+  .bg-pieces {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; pointer-events: none; font-size: 7rem;
+    opacity: 0.04; letter-spacing: 1.5rem; user-select: none;
+    flex-wrap: wrap; gap: 1rem; padding: 4rem;
+  }
+  .site-badge {
+    font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.4em;
+    color: var(--gold); text-transform: uppercase;
+    border: 1px solid rgba(201,151,58,0.4); padding: 0.4em 1.5em;
+    margin-bottom: 2rem; opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.3s;
+  }
+  h1 {
+    font-family: 'Cinzel', serif; font-size: clamp(3.5rem, 11vw, 8.5rem);
+    font-weight: 900; line-height: 0.9; text-align: center;
+    color: var(--parchment);
+    text-shadow: 0 0 80px rgba(201,151,58,0.3), 4px 4px 0 rgba(0,0,0,0.5);
+    opacity: 0; animation: fadeUp 0.9s ease forwards 0.5s;
+    position: relative; z-index: 1;
+  }
+  h1 span { color: var(--gold); display: block; }
+  .tagline {
+    font-style: italic; font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: rgba(245,234,214,0.65); margin-top: 1.5rem; text-align: center;
+    opacity: 0; animation: fadeUp 0.9s ease forwards 0.8s;
+    position: relative; z-index: 1;
+  }
+  .divider {
+    width: 200px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 2rem auto;
+    opacity: 0; animation: fadeUp 0.9s ease forwards 1s;
+  }
+  .hero-cta {
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+    opacity: 0; animation: fadeUp 0.9s ease forwards 1.2s;
+    position: relative; z-index: 1;
+  }
+  .btn-game {
+    font-family: 'Cinzel', serif; font-size: 0.82rem; letter-spacing: 0.2em;
+    text-transform: uppercase; text-decoration: none; padding: 1rem 2.5rem;
+    border: 2px solid var(--gold); color: var(--parchment);
+    position: relative; overflow: hidden; transition: color 0.3s;
+    background: transparent; cursor: pointer; display: inline-block;
+  }
+  .btn-game::before {
+    content: ''; position: absolute; inset: 0;
+    transform: translateX(-101%); transition: transform 0.3s ease; z-index: -1;
+  }
+  .btn-game:hover::before { transform: translateX(0); }
+  .btn-game:hover { color: var(--ink); }
+  .btn-game.chess { border-color: #b8c4cc; }
+  .btn-game.chess::before { background: #b8c4cc; }
+  .btn-game.scrabble { border-color: #8fbc8f; }
+  .btn-game.scrabble::before { background: #8fbc8f; }
+  .btn-game.monopoly { border-color: #e8913a; }
+  .btn-game.monopoly::before { background: #e8913a; }
+  .scroll-hint {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    opacity: 0; animation: fadeUp 1s ease forwards 1.8s;
+    font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 0.3em;
+    color: rgba(201,151,58,0.5);
+  }
+  .scroll-arrow {
+    width: 1px; height: 36px;
+    background: linear-gradient(to bottom, transparent, var(--gold));
+    animation: pulse-arrow 2s ease infinite;
+  }
+  .about-section { padding: 8rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-family: 'Cinzel', serif; font-size: 0.63rem; letter-spacing: 0.5em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 1rem; display: block;
+  }
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;
+    align-items: start; margin-top: 4rem;
+  }
+  .about-heading {
+    font-family: 'Cinzel', serif; font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600; line-height: 1.25; color: var(--parchment);
+    position: sticky; top: 2rem;
+  }
+  .about-heading em { color: var(--gold); font-style: normal; }
+  .about-text p { font-size: 1.2rem; line-height: 1.9; color: rgba(245,234,214,0.8); margin-bottom: 1.8rem; }
+  .about-text p:first-child::first-letter {
+    float: left; font-family: 'Cinzel', serif; font-size: 4rem;
+    line-height: 0.8; margin-right: 0.1em; color: var(--gold); padding-top: 0.1em;
+  }
+  .stats-strip {
+    border-top: 1px solid rgba(201,151,58,0.2);
+    border-bottom: 1px solid rgba(201,151,58,0.2);
+    padding: 3rem 2rem; display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    text-align: center; gap: 2rem;
+    max-width: 900px; margin: 0 auto 6rem;
+  }
+  .stat-num { font-family: 'Cinzel', serif; font-size: 2.8rem; font-weight: 900; color: var(--gold); display: block; }
+  .stat-label { font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,234,214,0.45); margin-top: 0.3rem; display: block; }
+  .games-section { padding: 4rem 2rem 8rem; max-width: 1100px; margin: 0 auto; }
+  .games-section-title { font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem); text-align: center; color: var(--parchment); margin-bottom: 3rem; }
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+  .game-card {
+    border: 1px solid rgba(201,151,58,0.25); padding: 2.5rem 2rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    cursor: pointer; text-decoration: none; color: inherit; display: block;
+    background: rgba(26,18,9,0.6);
+  }
+  .game-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s; }
+  .game-card.chess-card::before { background: radial-gradient(ellipse at 50% 0%, rgba(184,196,204,0.12), transparent 70%); }
+  .game-card.scrabble-card::before { background: radial-gradient(ellipse at 50% 0%, rgba(143,188,143,0.12), transparent 70%); }
+  .game-card.monopoly-card::before { background: radial-gradient(ellipse at 50% 0%, rgba(232,145,58,0.12), transparent 70%); }
+  .game-card:hover { transform: translateY(-6px); }
+  .game-card:hover::before { opacity: 1; }
+  .game-card.chess-card:hover { border-color: #b8c4cc; }
+  .game-card.scrabble-card:hover { border-color: #8fbc8f; }
+  .game-card.monopoly-card:hover { border-color: #e8913a; }
+  .card-icon { font-size: 3.2rem; display: block; margin-bottom: 1.2rem; }
+  .card-title { font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 0.8rem; }
+  .card-desc { font-size: 1rem; line-height: 1.7; color: rgba(245,234,214,0.62); margin-bottom: 1.5rem; }
+  .card-link { font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
+  .card-link::after { content: ' →'; transition: margin 0.2s; }
+  .game-card:hover .card-link::after { margin-left: 4px; }
+  footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid rgba(201,151,58,0.15); font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.3em; color: rgba(201,151,58,0.35); text-transform: uppercase; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse-arrow { 0%,100%{opacity:.3} 50%{opacity:1} }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  @media(max-width:768px) {
+    .about-grid { grid-template-columns:1fr; gap:2rem; }
+    .about-heading { position:static; }
+    .cards-grid { grid-template-columns:1fr; }
+    .stats-strip { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bg-pieces">♔♕♖♗♘♙♚♛♜♝♞♟🎲♟♔♕♖♚</div>
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+  <span class="site-badge">Est. Since Antiquity · BG Stories</span>
+  <h1>Board<span>Games</span></h1>
+  <p class="tagline">Where the analog world still reigns supreme</p>
+  <div class="divider"></div>
+  <div class="hero-cta">
+    <a href="chess.html" class="btn-game chess">♔ Chess</a>
+    <a href="scrabble.html" class="btn-game scrabble">🔤 Scrabble</a>
+    <a href="monopoly.html" class="btn-game monopoly">🏠 Monopoly</a>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-arrow"></div></div>
+</header>
+
+<section class="about-section">
+  <span class="section-label reveal">The Argument</span>
+  <div class="about-grid">
+    <div class="about-heading reveal">In a world of screens, <em>boards</em> still matter.</div>
+    <div class="about-text reveal">
+      <p>Long before the glow of a smartphone screen or the flicker of a television set, human beings gathered around tables to play. They moved carved pieces across grids, challenged each other with words, bargained for territory, and built entire social rituals around the act of sitting down together and competing.</p>
+      <p>Today, we live in an era saturated with digital entertainment. Streaming services, video games, and social media compete ferociously for every idle moment of our attention. And yet, board game sales continue to climb year after year. Cafes dedicate entire walls to shelves of boxed games. Families rediscover the kitchen table.</p>
+      <p>Board games offer something no algorithm can replicate: the irreplaceable texture of shared physical space. The weight of a chess piece in your hand. The rustling of Scrabble tiles. The theater of passing Monopoly money. These tactile, embodied experiences anchor us to one another in ways that a multiplayer lobby simply cannot.</p>
+      <p>There is strategy, yes — but there is also laughter, tension, negotiation, and story. Every game is a narrative written in real time, remembered long after the pieces are packed away.</p>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip reveal">
+  <div><span class="stat-num">$3.7B</span><span class="stat-label">Global Market Value</span></div>
+  <div><span class="stat-num">3,000+</span><span class="stat-label">Years of History</span></div>
+  <div><span class="stat-num">1 Billion</span><span class="stat-label">Regular Players</span></div>
+</div>
+
+<section class="games-section">
+  <h2 class="games-section-title reveal">Choose Your Game</h2>
+  <div class="cards-grid">
+    <a href="chess.html" class="game-card chess-card reveal">
+      <span class="card-icon">♛</span>
+      <div class="card-title">Chess</div>
+      <p class="card-desc">The ancient game of kings. Navigate strategy, sacrifice, and brilliance across 64 squares in a battle of pure intellect.</p>
+      <span class="card-link">Play & Explore</span>
+    </a>
+    <a href="scrabble.html" class="game-card scrabble-card reveal">
+      <span class="card-icon">🔤</span>
+      <div class="card-title">Scrabble</div>
+      <p class="card-desc">Language made competitive. Build words, score points, and outmaneuver your opponents one tile at a time.</p>
+      <span class="card-link">Play & Explore</span>
+    </a>
+    <a href="monopoly.html" class="game-card monopoly-card reveal">
+      <span class="card-icon">🎩</span>
+      <div class="card-title">Monopoly</div>
+      <p class="card-desc">The grand theater of capitalism. Buy properties, charge rent, and outlast everyone else in the ultimate real estate showdown.</p>
+      <span class="card-link">Play & Explore</span>
+    </a>
+  </div>
+</section>
+
+<footer>&copy; 2026 BG Stories · Celebrating the Timeless Art of Play</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 120);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
